@@ -2,6 +2,7 @@
 
 import requests
 import re
+from requests.utils import cookiejar_from_dict, dict_from_cookiejar
 
 print(">>>登录信息门户<<<")
 username=input("输入学号：")
@@ -29,13 +30,22 @@ data={
     "rmShown":"1"
 }
 r=u.post(init,headers=headers,data=data)
-#cookies=r.cookies
-#同一session内无需cookie
+
 if ("电子科技大学登录" in r.text):
     print (">>>用户名密码不匹配<<<")
     exit()
 else:
+    s1=r.headers
+    s2=dict_from_cookiejar(u.cookies)
+    print("[Headers]")
+    for i in s1:
+        print (i,"=",s1[i])
+    print("[Cookies]")
+    for i in s2:
+        print (i,"=",s2[i])
     print(">>>登录成功<<<")
 
+#cookies=r.cookies
+#同一session内无需cookie
 r=u.get(url,headers=headers)
 print (r.text)
