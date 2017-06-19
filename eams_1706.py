@@ -214,6 +214,7 @@ def biu(session, port, class_info, name, choose=True, sleep=0):
 					print('获取获取jesession失败：傻逼你电抽风了！')
 		time.sleep(sleep)
 		
+		
 def allclass(s):
 	res=[]
 	while s.partition("class=\"griddata")[1]!="":
