@@ -231,8 +231,13 @@ def biu(session, port, class_info, name, choose=True, sleep=0):
 				else:
 					print('获取获取jesession失败：傻逼你电抽风了！')
 		time.sleep(sleep)
+<<<<<<< HEAD
 
 
+=======
+		
+		
+>>>>>>> 68998bf62662a80a7f9e403961af2b43ee7be913
 def allclass(s):
 	res = []
 	while s.partition("class=\"griddata")[1] != "":
@@ -265,6 +270,7 @@ success_int = 0
 # 打印所有结果（关平台可用）
 # find(88888888)
 
+<<<<<<< HEAD
 m = len(lesson)
 print(m)
 success = []
@@ -280,3 +286,9 @@ for t in range(nthread):
 	if success[t % m] == 0:
 		th = threading.Thread(target=biu, args=(session, port[t % m], lesson[t % m], name[t % m]))
 		th.start()
+=======
+'''课表系统（施工中）'''
+s=allclass(safe_get(session, wzpj+'163'))
+for i in s:
+	find(i,1,0,["排课备注:"])
+>>>>>>> 68998bf62662a80a7f9e403961af2b43ee7be913
