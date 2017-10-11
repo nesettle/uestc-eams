@@ -21,6 +21,7 @@ name 		= ['大国兴衰史', '经济学概论']
 
 
 init = "http://idas.uestc.edu.cn/authserver/login?service=http%3A%2F%2Fportal.uestc.edu.cn%2F"
+init_eams = "http://eams.uestc.edu.cn/eams/home!index.action"
 url_lesson = 'http://eams.uestc.edu.cn/eams/electionLessonInfo.action?lesson.id='
 url_scan_lesson = "http://eams.uestc.edu.cn/eams/stdElectCourse!data.action?profileId="
 url_scan_entrance = "http://eams.uestc.edu.cn/eams/stdElectCourse!defaultPage.action?electionProfile.id="
@@ -102,7 +103,17 @@ def login(username, password):
 		sys.exit()
 	else:
 		print("提示：登录成功")
+		s = u.get(init_eams).text
+		if s.partition("重复登录")[1]!="":
+			url_t = get_mid_text(s,"请<a href=\"","\">点击此处")
+			u.get(url_t[0])
+			s = u.get(init_eams).text
+			if s.partition("重复登录")[1]!="":
+				print("提示：eams重复登录，并处理失败")
+			else:
+				print("提示：eams重复登录，但是处理成功")
 		return u
+
 
 
 def scan(url, minx, maxx, wrongword, out):
@@ -246,10 +257,7 @@ def allclass(s):
 print("初始化系统中...")
 try:
 	session = login(cyrus_username, cyrus_password)
-	session.get("http://eams.uestc.edu.cn/eams/home!submenus.action?menu.id=")
-	print("提示：登录成功")
 except:
-	print("提示：登录失败")
 	print("提示：系统已退出")
 	sys.exit()
 count = 0
@@ -267,7 +275,6 @@ success_int = 0
 # find(88888888)
 
 m = len(lesson)
-print(m)
 success = []
 for i in range(m):
 	success.append(0)
