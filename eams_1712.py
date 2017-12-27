@@ -1,10 +1,10 @@
 ############## ! CONFIG PART ! ##############
 cyrus_username = '2016xxxxxx'
 cyrus_password = 'p4ssw0rd'
-nthread = 1 # 预选请使用1，补选请使用更多
+nthread = 1 				# 预选请使用1，补选请使用更多
 port = [1294,1294,1294]
 lesson = [329453,332556,331421]
-op = ['select','select','change'] #select,change,catch
+op = ['select','select','change'] 	#select,change,catch
 money = [20,0,10]
 name = ['OS','计网','软工']
 #############################################
@@ -121,11 +121,11 @@ def login(username, password):
 
 
 def scan(url, minx, maxx, wrongword, out):
-	#	url			模板链接
+	#	url		模板链接
 	#	minx  		起始值（包含）
 	#	maxx		终止值（包含）
 	#	wrongword	错误关键字（list）
-	#	out			[=1]为需要临时输出
+	#	out		[=1]为需要临时输出
 	res = []
 	for i in range(minx, maxx + 1):
 		req = url + str(i)
