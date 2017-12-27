@@ -1,5 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+############## ! CONFIG PART ! ##############
+user_username = '2016xxxxxx'
+user_password = 'p4ssw0rd'
+nthread       = 1 # 预选请使用1
+port          = [1295]
+lesson        = [332444]
+name          = ['营养与健康']
+#############################################
 
 __author__ = 'Cyrus'
 
@@ -10,24 +16,14 @@ import time
 import queue
 import threading
 
-############## ! CONFIG PART ! ##############
-cyrus_username 	= '******'
-cyrus_password 	= '******'
-nthread 	= 5
-port		= [1061, 1061]
-lesson 		= [281788, 296878]
-name 		= ['大国兴衰史', '经济学概论']
-#############################################
-
-
 init = "http://idas.uestc.edu.cn/authserver/login?service=http%3A%2F%2Fportal.uestc.edu.cn%2F"
 init_eams = "http://eams.uestc.edu.cn/eams/home!index.action"
 url_lesson = 'http://eams.uestc.edu.cn/eams/electionLessonInfo.action?lesson.id='
 url_scan_lesson = "http://eams.uestc.edu.cn/eams/stdElectCourse!data.action?profileId="
 url_scan_entrance = "http://eams.uestc.edu.cn/eams/stdElectCourse!defaultPage.action?electionProfile.id="
 url_catch = "http://eams.uestc.edu.cn/eams/stdElectCourse!batchOperator.action?profileId="
-table = "http://eams.uestc.edu.cn/eams/courseTableForStd.action?_=0&semester.id="  # 163, 17-18, t1
-wzpj = "http://eams.uestc.edu.cn/eams/textEvaluateStudent!search.action?semester.id="  # 163, 17-18, t1
+url_table = "http://eams.uestc.edu.cn/eams/courseTableForStd.action?_=0&semester.id="  # 163, 17-18, t1
+url_test_estimate = "http://eams.uestc.edu.cn/eams/textEvaluateStudent!search.action?semester.id="  # 163, 17-18, t1
 
 
 def get_mid_text(text, left_text, right_text, start=0):
@@ -102,18 +98,17 @@ def login(username, password):
 		print("提示：系统已退出")
 		sys.exit()
 	else:
-		print("提示：登录成功")
+		print("提示：用户[%s]登录成功"%username)
 		s = u.get(init_eams).text
 		if s.partition("重复登录")[1]!="":
 			url_t = get_mid_text(s,"请<a href=\"","\">点击此处")
 			u.get(url_t[0])
 			s = u.get(init_eams).text
 			if s.partition("重复登录")[1]!="":
-				print("提示：eams重复登录，并处理失败")
+				print("提示：eams提示了重复登录，并处理失败")
 			else:
-				print("提示：eams重复登录，但是处理成功")
+				print("提示：eams提示了重复登录，但是处理成功")
 		return u
-
 
 
 def scan(url, minx, maxx, wrongword, out):
@@ -203,15 +198,12 @@ def biu(session, port, class_info, name, choose=True, sleep=0):
 	global m
 	global success
 	while success[t % m] == 0:
-		#		'''选课'''
-		#		postdata = {'operator0': '%s:%s:%s' % (str(class_info), str(choose).lower(), str(money))}
-		#		pre0 = safe_get(session,url_scan_entrance+str(port))
-		#		response = safe_post(session,url_catch + str(port), postdata)
+		
 		'''抢课'''
 		postdata = {'operator0': '%s:%s:0' % (str(class_info), str(choose).lower())}
 		pre0 = safe_get(session, url_scan_entrance + str(port))
 		response = safe_post(session, url_catch + str(port), postdata)
-		# print(response)
+		
 		info, end = get_mid_text(response, 'text-align:left;margin:auto;">', '</br>')
 		if end == -1:
 			info += '网络错误！'
@@ -243,6 +235,55 @@ def biu(session, port, class_info, name, choose=True, sleep=0):
 				else:
 					print('获取获取jesession失败：傻逼你电抽风了！')
 		time.sleep(sleep)
+		
+
+def biubiu(session, port, class_info, name, choose=True, sleep=0):
+	'''选课系统'''
+	global count
+	global t
+	global m
+	global success
+	while success[t % m] == 0:
+		'''选课'''
+		postdata = {
+			'operator0': '%s:%s:0' % (str(class_info), str(choose).lower()),
+			'virtualCashCost%s' % (str(class_info)):0
+		}
+		pre0 = safe_get(session, url_scan_entrance + str(port))
+		response = safe_post(session, url_catch + str(port), postdata)
+				
+		info, end = get_mid_text(response, 'text-align:left;margin:auto;">', '</br>')
+		if end == -1:
+			info += '网络错误！'
+		info = info.replace(' ', '').replace('\n', '').replace('\t', '')
+		info += '  id:%s  port:%s' % (class_info, port)
+		count += 1
+		print(name + '正在进行第%d次预选' % (count,))
+		print(info)
+		if '成功' in info:
+			print("%s预选完成" % name)
+			success[t % m] = 1
+			global success_int
+			success_int += 1
+			break
+		elif '本批次' in info or '只开放给' in info:
+			print("emmmm...真的选不了")
+			break
+		elif '网络错误' in info:
+			print('jesession已经过期 正在获取jesession')
+			while True:
+				try:
+					response = safe_get(session, url_catch + str(port))
+				except Exception:
+					print('获取获取jesession失败：网络错误！')
+					continue
+				if '(possibly due to' not in response:
+					print('获取获取jesession成功')
+					break
+				else:
+					print('获取获取jesession失败：傻逼你电抽风了！')
+		time.sleep(sleep)
+
 
 
 def allclass(s):
@@ -256,23 +297,23 @@ def allclass(s):
 
 print("初始化系统中...")
 try:
-	session = login(cyrus_username, cyrus_password)
+	session = login(user_username, user_password)
 except:
 	print("提示：系统已退出")
 	sys.exit()
 count = 0
 success_int = 0
 
-# 查找入口
-# entrance = scan(url_scan_entrance, 900, 2000, ["没有开放的选课轮次", "不在选课时间内"], 0)
-# print(entrance)
+#查找入口
+#entrance = scan(url_scan_entrance, 1000, 2000, ["没有开放的选课轮次", "不在选课时间内"], 0)
+#print(entrance)
 
-# 查找课程
-# lesson = find("C1600930.06","status_171801.txt")
-# print(lesson)
+#查找课程
+#lesson = find("C1600930.06","status_171801.txt")
+#print(lesson)
 
-# 打印所有结果（关平台可用）
-# find(88888888)
+#打印所有结果（关平台可用）
+#find(88888888)
 
 m = len(lesson)
 success = []
@@ -286,5 +327,5 @@ for t in range(nthread):
 		sys.exit()
 	free.put("thread" + str(t))
 	if success[t % m] == 0:
-		th = threading.Thread(target=biu, args=(session, port[t % m], lesson[t % m], name[t % m]))
+		th = threading.Thread(target=biubiu, args=(session, port[t % m], lesson[t % m], name[t % m]))
 		th.start()
