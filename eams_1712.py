@@ -17,6 +17,7 @@ import requests
 import re
 import sys
 import time
+import datatime
 import queue
 import threading
 
@@ -229,7 +230,16 @@ def biu(session, port, class_info, name, op, money, choose=True, sleep=0):
 		time.sleep(sleep)
 
 
+def setcatchtime(ttime,tsleep):
+	tnow = str(datetime.datetime.now())
+	while tnow < ttime:
+		print("等待定时启动...")
+		tnow = str(datetime.datetime.now())
+		time.sleep(tsleep)
+
+		
 print("初始化系统中...")
+setcatchtime("2018-01-04 13:00:00.000000",10)
 try:
 	session = login(cyrus_username, cyrus_password)
 except:
